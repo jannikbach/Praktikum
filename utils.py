@@ -1,5 +1,7 @@
 from itertools import groupby
 
+import networkx as nx
+
 
 def split_by_key(graphs, key_func):
     graphs.sort(key=key_func)
@@ -31,3 +33,24 @@ def split_by_equality(graphs, is_equal, representative_func=None):
 
     # drop representatives
     return [elements for representative, elements in clusters]
+
+
+def node_match(n1, n2):
+    """
+    Check if two nodes should be considered identical
+    """
+    return n1['element'] == n2['element'] and n1['charge'] == n2['charge']
+
+
+def edge_match(e1, e2):
+    """
+    Check if two edges should be considered identical
+    """
+    return e1['order'] == e2['order']
+
+
+def is_isomorphic(rc1, rc2):
+    """
+    Check if two reaction centers are isomorphic.
+    """
+    return nx.is_isomorphic(rc1, rc2, node_match=node_match, edge_match=edge_match)
