@@ -2,6 +2,8 @@
 Implements a simple clustering algorithm.
 """
 import pickle
+import time
+
 
 import more_itertools
 import networkx as nx
@@ -61,11 +63,15 @@ for reaction in reactions:
 
 
 clusters = [reaction_centers]
+start_time = time.time()
 clusters = partition_clusters_by_invariant(clusters, number_of_nodes)
 clusters = partition_clusters_by_invariant(clusters, number_of_edges)
 clusters = list(more_itertools.flatten(list(map(lambda cluster: split_by_equality(cluster, is_isomorphic), clusters))))
+end_time = time.time()
+
 
 print("num clusters:", len(clusters))
 
-
-### reaction center
+# Measure execution time
+execution_time = end_time - start_time
+print(f"Execution time: {execution_time:.2f} seconds")
