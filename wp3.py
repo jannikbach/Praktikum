@@ -8,8 +8,7 @@ import time
 import more_itertools
 import networkx as nx
 
-from utils import split_by_key, split_by_equality, is_isomorphic
-from src.rc_extract import get_rc
+from utils import split_by_key, split_by_equality, is_isomorphic, get_rc
 
 
 VERBOSE = True
@@ -19,17 +18,6 @@ with open('Data/ITS_graphs.pkl.gz', 'rb') as f:
     reactions = pickle.load(f)
 print("Data loaded.")
 
-def node_match(n1, n2):
-    """
-    Check if two nodes should be considered identical
-    """
-    return n1['element'] == n2['element'] and n1['charge'] == n2['charge']
-
-def edge_match(e1, e2):
-    """
-    Check if two edges should be considered identical
-    """
-    return e1['order'] == e2['order']
 
 def number_of_nodes(reaction):
     return reaction.number_of_nodes()
