@@ -5,7 +5,7 @@ import pickle
 import networkx as nx
 from src.rc_extract import get_rc
 
-VERBOSE = False
+VERBOSE = True
 
 print("Loading data...")
 with open('Data/ITS_graphs_100_subset.pkl', 'rb') as f:
