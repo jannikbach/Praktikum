@@ -6,7 +6,7 @@ def split_by_key(graphs, key_func):
     return [list(group) for key, group in groupby(graphs, key=key_func)]
 
 
-def split_by_equality(graphs, is_equal, representative_func):
+def split_by_equality(graphs, is_equal, representative_func=None):
     if representative_func is None:
         # use identity
         representative_func = lambda x: x
