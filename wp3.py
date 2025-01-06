@@ -81,6 +81,7 @@ for reaction in reactions:
         print(f"{(i / len(reactions)) * 100:.2f}%")
     reaction_centers.append(get_rc(reaction['ITS']))
 
+#clusters = [(0, reaction_centers)]
 
 def run_pipeline(reaction_centers, invariants):
     clusters = [reaction_centers]
@@ -120,15 +121,6 @@ def run_pipeline(reaction_centers, invariants):
     return clusters
 
 
-run_pipeline(reaction_centers, [
-    number_of_nodes,
-    number_of_edges,
-    degree_distribution,
-    elemental_composition,
-    bond_type_distribution,
-    clustering_coefficients,
-])
-
-run_pipeline(reaction_centers, [
-    elemental_composition,
-])
+print("num clusters:", len(clusters))
+execution_time = end_time - start_time
+print(f"Execution time: {execution_time:.2f} seconds")

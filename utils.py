@@ -3,12 +3,14 @@ from itertools import groupby
 import networkx as nx
 
 
-def split_by_key(graphs, key_func):
+def split_by_key(cluster, key_func):
+    representative, graphs = cluster
     graphs.sort(key=key_func)
-    return [list(group) for key, group in groupby(graphs, key=key_func)]
+    return [(key, list(group)) for key, group in groupby(graphs, key=key_func)]
 
 
-def split_by_equality(graphs, is_equal, representative_func=None):
+def split_by_equality(cluster, is_equal, representative_func=None):
+    representative, graphs = cluster
     if representative_func is None:
         # use identity
         representative_func = lambda x: x
@@ -31,8 +33,7 @@ def split_by_equality(graphs, is_equal, representative_func=None):
             cluster = (representative, [graph])
             clusters.append(cluster)
 
-    # drop representatives
-    return [elements for representative, elements in clusters]
+    return clusters
 
 
 def node_match(n1, n2):
