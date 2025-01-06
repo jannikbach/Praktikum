@@ -4,8 +4,7 @@ Implements a simple clustering algorithm.
 import pickle
 import time
 
-from src.rc_extract import get_rc
-from utils import is_isomorphic, split_by_equality
+from utils import is_isomorphic, split_by_equality, get_rc
 
 print("Loading data...")
 with open('Data/ITS_graphs.pkl.gz', 'rb') as f:

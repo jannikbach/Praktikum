@@ -54,3 +54,8 @@ def is_isomorphic(rc1, rc2):
     Check if two reaction centers are isomorphic.
     """
     return nx.is_isomorphic(rc1, rc2, node_match=node_match, edge_match=edge_match)
+
+
+def get_rc(G: nx.Graph) -> nx.Graph:
+    edges = [(e[0], e[1]) for e in G.edges(data=True) if e[2]["standard_order"] != 0]
+    return nx.edge_subgraph(G, edges)
