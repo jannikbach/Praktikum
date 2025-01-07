@@ -1,5 +1,8 @@
+import time
+import pickle
 from itertools import groupby
 
+import more_itertools
 import networkx as nx
 
 
@@ -7,7 +10,6 @@ def split_by_key(cluster, key_func):
     representative, graphs = cluster
     graphs.sort(key=key_func)
     return [(key, list(group)) for key, group in groupby(graphs, key=key_func)]
-
 
 
 def split_by_equality(cluster, is_equal, representative_func=None):
@@ -37,6 +39,17 @@ def split_by_equality(cluster, is_equal, representative_func=None):
     return clusters
 
 
+def partition_clusters_by_invariant(clusters, invariant):
+    """
+    Partition clusters by invariant
+    """
+    partitioned_clusters = []
+    for cluster in clusters:
+        invariant_sublists = split_by_key(cluster, invariant)
+        partitioned_clusters.extend(invariant_sublists)
+    return partitioned_clusters
+
+
 def node_match(n1, n2):
     """
     Check if two nodes should be considered identical
@@ -63,3 +76,56 @@ def get_rc(G: nx.Graph) -> nx.Graph:
     return nx.edge_subgraph(G, edges)
 
 
+def load_reaction_centers(graphs_filename, verbose=True):
+    if verbose: print("Loading data...")
+    with open(graphs_filename, 'rb') as f:
+        reactions = pickle.load(f)
+    if verbose: print("Data loaded.")
+
+    if verbose: print("Computing reaction centers...")
+    i = 0
+    reaction_centers = []
+    for reaction in reactions:
+        i += 1
+        if verbose and i % 1000 == 0: print(f"{(i / len(reactions)) * 100:.2f}%")
+        reaction_centers.append(get_rc(reaction['ITS']))
+    if verbose: print("Reaction centers computed.")
+
+    return reaction_centers
+
+
+def run_pipeline(pipeline_title, reaction_centers, invariants):
+    clusters = [(0, reaction_centers)]
+    print(f"===== '{pipeline_title}' =====")
+
+    prev_num_clusters = len(clusters)
+    start_time = 0
+    end_time = 0
+
+    def print_stats():
+        print(f" - Time: {end_time - start_time:.2f} s")
+        print(f" - Clusters: {len(clusters)} (+{len(clusters) - prev_num_clusters})")
+
+    total_start_time = time.time()
+    for invariant in invariants:
+        start_time = time.time()
+        clusters = partition_clusters_by_invariant(clusters, invariant)
+        end_time = time.time()
+
+        print(invariant.__name__)
+        print_stats()
+
+        prev_num_clusters = len(clusters)
+
+    start_time = time.time()
+    clusters = list(more_itertools.flatten(
+        list(map(lambda cluster: split_by_equality(cluster, is_isomorphic), clusters))))
+    end_time = time.time()
+    print("isomorphism")
+    print_stats()
+
+    total_end_time = time.time()
+
+    print(f"Total Time: {total_end_time - total_start_time:.2f} s")
+
+    return clusters

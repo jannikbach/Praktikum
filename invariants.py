@@ -1,5 +1,3 @@
-from itertools import groupby
-
 import networkx as nx
 
 from utils import split_by_key
@@ -52,18 +50,5 @@ def iterate_weisfeiler(graph, iterations, node_attributes=None, edge_attr=None):
 def wl_with_iterations(iters):
     def wl_iteration(clusters):
         return iterate_weisfeiler(clusters, iters)
+
     return wl_iteration
-
-# Invatiant by: wl_with_iterations(7)
-
-
-
-def partition_clusters_by_invariant(clusters, invariant):
-    """
-    Partition clusters by invariant
-    """
-    partitioned_clusters = []
-    for cluster in clusters:
-        invariant_sublists = split_by_key(cluster, invariant)
-        partitioned_clusters.extend(invariant_sublists)
-    return partitioned_clusters
