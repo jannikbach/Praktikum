@@ -8,7 +8,7 @@ def weisfeiler_lehmann_init(graph: nx.Graph, node_attr:list[str], edge_attr:list
     The first iteration step that uses node/edge attributes to create hashes.
     Adds the "hash" attribute to each node.
     """
-    hashes = {}
+    new_hashes = {}  # store hashes for the next iteration (don't override the current ones)
 
     for node, node_data in graph.nodes(data=True):
         d = {}
@@ -18,18 +18,19 @@ def weisfeiler_lehmann_init(graph: nx.Graph, node_attr:list[str], edge_attr:list
                 d[label] = 1
             else:
                 d[label] += 1
-        hashes[node] = _hash_dict(d)
+        new_hashes[node] = _hash_dict(d)
 
-    for node, hash in hashes.items():
+    # replace all hashes with the new hashes
+    for node, hash in new_hashes.items():
         graph.nodes[node]["hash"] = hash
 
 def weisfeiler_lehmann_step(graph: nx.Graph):
     new_hashes = {}
 
     for node, node_data in graph.nodes(data=True):
-        d = {}
-        # do we neet to put the node hash in the dict?
-        d[node_data["hash"]] = 1
+        d = {
+            0: node_data["hash"]
+        }
         for neighbor in graph.neighbors(node):
             label = graph.nodes[neighbor]["hash"]
             if label not in d:
