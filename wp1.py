@@ -1,11 +1,10 @@
 import pickle
-import networkx as nx
 
 with open('Data/ITS_graphs_100_subset.pkl', 'rb') as f:
     data = pickle.load(f)
 
+from utils import get_rc
 
-from src.rc_extract import get_rc
 reaction_center = get_rc(data[0]['ITS'])
 
 from synutility.SynVis.graph_visualizer import GraphVisualizer
