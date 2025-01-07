@@ -29,7 +29,7 @@ def run_pipeline(reaction_centers, invariants):
     clusters = [(0, reaction_centers)]
     print("===== RUNNING PIPELINE =====")
 
-    prev_num_clusters = len(reaction_centers)
+    prev_num_clusters = len(clusters)
     start_time = 0
     end_time = 0
 
