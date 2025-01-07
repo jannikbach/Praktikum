@@ -39,11 +39,14 @@ def clustering_coefficients(reaction):
     return tuple(sorted(nx.clustering(reaction).values()))
 
 
-def iterate_weisfeiler(graph, iterations):
+def iterate_weisfeiler(graph, iterations, node_attributes=None, edge_attr=None):
+    if node_attributes is None:
+        node_attributes = ['element', 'charge']
+    if edge_attr is None:
+        edge_attr = 'order'
     for node, data in graph.nodes(data=True):
-        data['label'] = str(data.get('element', None)) + '_' + str(data.get('charge', None))
-    return nx.weisfeiler_lehman_graph_hash(graph, node_attr='label', edge_attr='order', iterations=iterations)
-
+        data['label'] = '_'.join([str(data.get(attr, None)) for attr in node_attributes])
+    return nx.weisfeiler_lehman_graph_hash(graph, node_attr='label', edge_attr=edge_attr, iterations=iterations)
 
 
 def wl_with_iterations(iters):

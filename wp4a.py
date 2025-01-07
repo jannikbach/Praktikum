@@ -10,7 +10,7 @@ from utils import is_isomorphic, split_by_equality, split_by_key, get_rc
 VERBOSE = True
 
 print("Loading data...")
-with open('Data/ITS_graphs.pkl.gz', 'rb') as f:
+with open('Data/ITS_graphs_100_subset.pkl', 'rb') as f:
     reactions = pickle.load(f)
 print("Data loaded.")
 
