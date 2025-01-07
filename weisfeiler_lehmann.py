@@ -35,8 +35,8 @@ def weisfeiler_lehmann_init(graph: nx.Graph, node_attr: list[str], edge_attr: li
         new_hashes[node] = _hash_dict(d)
 
     # replace all hashes with the new hashes
-    for node, hash in new_hashes.items():
-        graph.nodes[node]["hash"] = hash
+    for node, node_hash in new_hashes.items():
+        graph.nodes[node]["hash"] = node_hash
 
 
 def weisfeiler_lehmann_step(graph: nx.Graph):
