@@ -99,13 +99,14 @@ def load_reactioncenters_from_path(graphs_filename, verbose=True):
 
     return reaction_centers
 
+
 def load_reaction_centers(dataset='small', verbose=True):
     if dataset == 'small':
         graphs_filename = 'Data/ITS_graphs_100_subset.pkl'
-        verbose=False
-    elif dataset=='medium':
+        verbose = False
+    elif dataset == 'medium':
         graphs_filename = 'Data/ITS_graphs.pkl.gz'
-    elif dataset=='large':
+    elif dataset == 'large':
         graphs_filename = 'Data/ITS_largerdataset.pkl.gz'
     else:
         graphs_filename = 'Data/ITS_graphs_100_subset.pkl'
@@ -113,7 +114,7 @@ def load_reaction_centers(dataset='small', verbose=True):
     return load_reactioncenters_from_path(graphs_filename, verbose)
 
 
-def run_pipeline(pipeline_title, reaction_centers, invariants):
+def run_pipeline(pipeline_title, reaction_centers, invariants, iso=True):
     clusters = [(0, reaction_centers)]
     print(f"===== '{pipeline_title}' =====")
 
@@ -136,12 +137,13 @@ def run_pipeline(pipeline_title, reaction_centers, invariants):
 
         prev_num_clusters = len(clusters)
 
-    start_time = time.time()
-    clusters = list(more_itertools.flatten(
-        list(map(lambda cluster: split_by_equality(cluster, is_isomorphic), clusters))))
-    end_time = time.time()
-    print("isomorphism")
-    print_stats()
+    if iso:
+        start_time = time.time()
+        clusters = list(more_itertools.flatten(
+            list(map(lambda cluster: split_by_equality(cluster, is_isomorphic), clusters))))
+        end_time = time.time()
+        print("isomorphism")
+        print_stats()
 
     total_end_time = time.time()
 
