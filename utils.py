@@ -75,8 +75,7 @@ def get_rc(G: nx.Graph) -> nx.Graph:
     edges = [(e[0], e[1]) for e in G.edges(data=True) if e[2]["standard_order"] != 0]
     return nx.edge_subgraph(G, edges)
 
-
-def load_reaction_centers(graphs_filename, verbose=True):
+def load_reactioncenters_from_path(graphs_filename, verbose=True):
     if verbose: print("Loading data...")
     with open(graphs_filename, 'rb') as f:
         reactions = pickle.load(f)
@@ -92,6 +91,19 @@ def load_reaction_centers(graphs_filename, verbose=True):
     if verbose: print("Reaction centers computed.")
 
     return reaction_centers
+
+def load_reaction_centers(dataset='small', verbose=True):
+    if dataset == 'small':
+        graphs_filename = 'Data/ITS_graphs_100_subset.pkl'
+        verbose=False
+    elif dataset=='medium':
+        graphs_filename = 'Data/ITS_graphs.pkl.gz'
+    elif dataset=='large':
+        graphs_filename = 'Data/ITS_largerdataset.pkl.gz'
+    else:
+        graphs_filename = 'Data/ITS_graphs_100_subset.pkl'
+
+    return load_reactioncenters_from_path(graphs_filename, verbose)
 
 
 def run_pipeline(pipeline_title, reaction_centers, invariants):
