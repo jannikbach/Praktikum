@@ -1,7 +1,7 @@
 from invariants import wl_with_iterations
 from utils import run_pipeline, load_reaction_centers
 
-reaction_centers = load_reaction_centers('Data/ITS_graphs.pkl.gz')
+reaction_centers = load_reaction_centers('Data/ITS_graphs_100_subset.pkl')
 
 run_pipeline("WL it=1", reaction_centers, [
     wl_with_iterations(1)
