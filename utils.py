@@ -4,6 +4,7 @@ from itertools import groupby
 
 import more_itertools
 import networkx as nx
+from tqdm import tqdm
 
 
 def split_by_key(cluster, key_func):
@@ -75,20 +76,26 @@ def get_rc(G: nx.Graph) -> nx.Graph:
     edges = [(e[0], e[1]) for e in G.edges(data=True) if e[2]["standard_order"] != 0]
     return nx.edge_subgraph(G, edges)
 
+
 def load_reactioncenters_from_path(graphs_filename, verbose=True):
-    if verbose: print("Loading data...")
+    if verbose:
+        print("Loading data...")
+
     with open(graphs_filename, 'rb') as f:
         reactions = pickle.load(f)
-    if verbose: print("Data loaded.")
 
-    if verbose: print("Computing reaction centers...")
-    i = 0
+    if verbose:
+        print("Data loaded.")
+        print("Computing reaction centers...")
+
     reaction_centers = []
-    for reaction in reactions:
-        i += 1
-        if verbose and i % 1000 == 0: print(f"{(i / len(reactions)) * 100:.2f}%")
+
+    # Initialize tqdm progress bar
+    for reaction in tqdm(reactions, desc="Processing Reactions", unit="reaction"):
         reaction_centers.append(get_rc(reaction['ITS']))
-    if verbose: print("Reaction centers computed.")
+
+    if verbose:
+        print("Reaction centers computed.")
 
     return reaction_centers
 
