@@ -40,7 +40,9 @@ def clustering_coefficients(reaction):
 
 
 def iterate_weisfeiler(graph, iterations):
-    return nx.weisfeiler_lehman_graph_hash(graph, node_attr='element', edge_attr='order', iterations=iterations)
+    for node, data in graph.nodes(data=True):
+        data['label'] = str(data.get('element', None)) + '_' + str(data.get('charge', None))
+    return nx.weisfeiler_lehman_graph_hash(graph, node_attr='label', edge_attr='order', iterations=iterations)
 
 
 
