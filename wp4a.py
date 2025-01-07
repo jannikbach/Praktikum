@@ -3,7 +3,6 @@ import sys
 from invariants import wl_with_iterations
 from utils import run_pipeline, load_reaction_centers
 
-
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         reaction_centers = load_reaction_centers()

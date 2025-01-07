@@ -14,8 +14,6 @@ def wl_step(graph) -> int:
     return hash_graph(graph)
 
 
-
-
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         reaction_centers = load_reaction_centers()
@@ -24,6 +22,6 @@ if __name__ == "__main__":
     run_pipeline("WL it=3", reaction_centers, [
         wl_init,
         wl_step,
-        wl_step,
-        wl_step,
+        # wl_step,
+        # wl_step,
     ])
