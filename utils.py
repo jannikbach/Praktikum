@@ -9,6 +9,7 @@ def split_by_key(cluster, key_func):
     return [(key, list(group)) for key, group in groupby(graphs, key=key_func)]
 
 
+
 def split_by_equality(cluster, is_equal, representative_func=None):
     representative, graphs = cluster
     if representative_func is None:
@@ -60,3 +61,5 @@ def is_isomorphic(rc1, rc2):
 def get_rc(G: nx.Graph) -> nx.Graph:
     edges = [(e[0], e[1]) for e in G.edges(data=True) if e[2]["standard_order"] != 0]
     return nx.edge_subgraph(G, edges)
+
+

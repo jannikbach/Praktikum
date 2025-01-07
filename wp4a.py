@@ -2,10 +2,10 @@ import pickle
 import time
 
 import more_itertools
+import networkx as nx
 
-from invariants import number_of_nodes, number_of_edges, degree_distribution, elemental_composition, \
-    bond_type_distribution, clustering_coefficients, partition_clusters_by_invariant
-from utils import is_isomorphic, split_by_equality, get_rc
+from invariants import wl_with_iterations, partition_clusters_by_invariant
+from utils import is_isomorphic, split_by_equality, split_by_key, get_rc
 
 VERBOSE = True
 
@@ -13,6 +13,8 @@ print("Loading data...")
 with open('Data/ITS_graphs.pkl.gz', 'rb') as f:
     reactions = pickle.load(f)
 print("Data loaded.")
+
+
 
 i = 0
 reaction_centers = []
@@ -60,14 +62,8 @@ def run_pipeline(reaction_centers, invariants):
     return clusters
 
 run_pipeline(reaction_centers, [
-    number_of_nodes,
-    number_of_edges,
-    degree_distribution,
-    elemental_composition,
-    bond_type_distribution,
-    clustering_coefficients,
+    wl_with_iterations(1)
 ])
-
 run_pipeline(reaction_centers, [
-    elemental_composition,
+    wl_with_iterations(7)
 ])
