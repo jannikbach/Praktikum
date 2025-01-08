@@ -1,6 +1,7 @@
 import time
 import pickle
 from itertools import groupby
+from operator import itemgetter
 
 import more_itertools
 import networkx as nx
@@ -8,8 +9,18 @@ from tqdm import tqdm
 
 
 def split_by_key(cluster, key_func):
-    cluster = sorted(cluster, key=key_func)
-    return [list(group) for _, group in groupby(cluster, key=key_func)]
+    # Step 1: Decorate each element with its key
+    decorated = [(key_func(item), item) for item in cluster]
+
+    # Step 2: Sort the decorated list by key
+    decorated.sort(key=itemgetter(0))
+
+    # Step 3: Group by the precomputed key
+    grouped = groupby(decorated, key=itemgetter(0))
+
+    # Step 4: Extract the original items from each group
+    return [[item for _, item in group] for _, group in grouped]
+
 
 def split_by_equality(cluster, is_equal):
     buckets = []
@@ -110,7 +121,6 @@ def load_reaction_centers(dataset='small', verbose=True):
 
 
 def run_pipeline(pipeline_title, reaction_centers, steps, iso=True):
-
     clusters = [reaction_centers]
     print(f"===== '{pipeline_title}' =====")
 
