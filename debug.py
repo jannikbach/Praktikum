@@ -35,8 +35,8 @@ wl_clusters = run_pipeline("custom wl", reaction_centers, [
     wl_step
 ], iso=False)
 
-print("WL clusters:")
-print_cluster_sizes(wl_clusters)
+# print("WL clusters:")
+# print_cluster_sizes(wl_clusters)
 
 
 def clusters_match(cluster_a, cluster_b):
@@ -61,8 +61,9 @@ print("======================= Extract Critical Reaction Centers ===============
 print_cluster_sizes(duplicates)
 critical_rcs = []
 for cluster in duplicates:
-    for rc in cluster[1]:
-        critical_rcs.append(rc)
+    if len(cluster[1]) == 1:
+        critical_rcs.append(cluster[1][0])
+
 
 print("======================= RAW ISO SPLIT =======================")
 iso_clusters = split_by_equality((0, critical_rcs), is_isomorphic)
@@ -80,6 +81,5 @@ print("======================= WL STEP =======================")
 wl_clusters = run_pipeline("custom wl", critical_rcs, [
     wl_init,
     wl_step,
-    wl_step
 ], iso=False)
 print_cluster_sizes(wl_clusters)
