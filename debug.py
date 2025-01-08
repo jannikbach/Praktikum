@@ -1,8 +1,9 @@
 import pickle
 
+import networkx as nx
+
 from utils import is_isomorphic, split_by_equality, load_reaction_centers, run_pipeline
 from weisfeiler_lehmann import wl_init, wl_step
-
 
 
 def print_cluster_sizes(clusters):
@@ -35,35 +36,31 @@ wl_clusters = run_pipeline("custom wl", reaction_centers, [
     wl_step
 ], iso=False)
 
-# print("WL clusters:")
-# print_cluster_sizes(wl_clusters)
+
+def find_matches(graphs1, graphs2):
+    matches = []
+    for g1 in graphs1:
+        for g2 in graphs2:
+            if is_isomorphic(g1, g2):
+                matches.append((cluster_a, cluster_b))
+    return matches
 
 
-def clusters_match(cluster_a, cluster_b):
-    _, rcs_a = cluster_a
-    _, rcs_b = cluster_b
-    # if len(rcs_a) != len(rcs_b):
-    #     return False
-    # compare first graphs
-    return is_isomorphic(rcs_a[0], rcs_b[0])
+duplicates: list[tuple[nx.Graph, nx.Graph]] = []
+for i, cluster_a in enumerate(wl_clusters[:-1]):
+    for cluster_b in wl_clusters[i + 1:]:
+        # for each unique and different pair (cluster_a, cluster_b):
+        pairs = find_matches(cluster_a, cluster_b)
+        if pairs:
+            duplicates.extend(pairs)
 
+print("======================= DUPLICATES =======================")
+print("num duplicates:", len(duplicates))
+print("graph IDs:")
+for a, b in duplicates:
+    print((a, b))
 
-duplicates = []
-for cluster_a in wl_clusters:
-    for cluster_b in wl_clusters:
-        if cluster_b != cluster_a and clusters_match(cluster_a, cluster_b):
-            if cluster_a not in duplicates:
-                duplicates.append(cluster_a)
-            if cluster_b not in duplicates:
-                duplicates.append(cluster_b)
-
-print("======================= Extract Critical Reaction Centers =======================")
-print_cluster_sizes(duplicates)
-critical_rcs = []
-for cluster in duplicates:
-    if len(cluster[1]) == 1:
-        critical_rcs.append(cluster[1][0])
-
+exit()
 
 print("======================= RAW ISO SPLIT =======================")
 iso_clusters = split_by_equality((0, critical_rcs), is_isomorphic)
