@@ -9,8 +9,7 @@ from tqdm import tqdm
 
 def split_by_key(cluster, key_func):
     cluster = sorted(cluster, key=key_func)
-    return [list(group) for key, group in groupby(cluster, key=key_func)]
-
+    return [list(group) for _, group in groupby(cluster, key=key_func)]
 
 def split_by_equality(cluster, is_equal):
     buckets = []
@@ -103,7 +102,8 @@ def load_reaction_centers(dataset='small', verbose=True):
     return load_reactioncenters_from_path(graphs_filename, verbose)
 
 
-def run_pipeline(pipeline_title, reaction_centers, invariants, iso=True):
+def run_pipeline(pipeline_title, reaction_centers, steps, iso=True):
+
     clusters = [reaction_centers]
     print(f"===== '{pipeline_title}' =====")
 
@@ -116,12 +116,20 @@ def run_pipeline(pipeline_title, reaction_centers, invariants, iso=True):
         print(f" - Clusters: {len(clusters)} (+{len(clusters) - prev_num_clusters})")
 
     total_start_time = time.time()
-    for invariant in invariants:
+    for transformation, invariant in steps:
         start_time = time.time()
+        if transformation is not None:
+            for cluster in clusters:
+                for graph in cluster:
+                    # in-place transformation
+                    transformation(graph)
         clusters = partition_clusters_by_invariant(clusters, invariant)
         end_time = time.time()
 
-        print(invariant.__name__)
+        if transformation is None:
+            print(invariant.__name__)
+        else:
+            print(f"{transformation.__name__} | {invariant.__name__}")
         print_stats()
 
         prev_num_clusters = len(clusters)

@@ -3,15 +3,13 @@ from xxhash import xxh64
 
 
 # invariant
-def wl_init(graph) -> int:
+def wl_init(graph) -> None:
     weisfeiler_lehmann_init(graph, node_attr=["element", "charge"], edge_attr=["order"])
-    return hash_graph(graph)
 
 
 # invariant
-def wl_step(graph) -> int:
+def wl_step(graph) -> None:
     weisfeiler_lehmann_step(graph)
-    return hash_graph(graph)
 
 
 def weisfeiler_lehmann_init(graph: nx.Graph, node_attr: list[str], edge_attr: list[str]):
