@@ -60,9 +60,16 @@ def is_isomorphic(rc1, rc2):
     return nx.is_isomorphic(rc1, rc2, node_match=node_match, edge_match=edge_match)
 
 
-def get_rc(G: nx.Graph) -> nx.Graph:
+def get_rc(G: nx.Graph, ID=None) -> nx.Graph:
+
+    # Extract edges with "standard_order" not equal to 0
     edges = [(e[0], e[1]) for e in G.edges(data=True) if e[2]["standard_order"] != 0]
-    return nx.edge_subgraph(G, edges)
+    rc = nx.edge_subgraph(G, edges)
+
+    # Assign the parent identifier (R-id)
+    rc.graph["ID"] = ID
+
+    return rc
 
 
 def load_reactioncenters_from_path(graphs_filename, verbose=True):
