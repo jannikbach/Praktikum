@@ -37,30 +37,15 @@ def clustering_coefficients(reaction):
     return tuple(sorted(nx.clustering(reaction).values()))
 
 
-def iterate_weisfeiler(graph, iterations, node_attributes=None, edge_attributes=None):
+def iterate_weisfeiler(graph, iterations, node_attributes=None, edge_attr=None):
     if node_attributes is None:
         node_attributes = ['element', 'charge']
-    if edge_attributes is None:
-        edge_attributes = ['order']
+    if edge_attr is None:
+        edge_attr = 'order'
+    for node, data in graph.nodes(data=True):
+        data['label'] = '_'.join([str(data.get(attr, None)) for attr in node_attributes])
+    return nx.weisfeiler_lehman_graph_hash(graph, node_attr='label', edge_attr=edge_attr, iterations=iterations)
 
-    # Prepare node labels without modifying the graph
-    node_labels = {
-        node: '_'.join([str(data.get(attr, None)) for attr in node_attributes])
-        for node, data in graph.nodes(data=True)
-    }
-
-    # Prepare edge labels without modifying the graph
-    edge_labels = {
-        (u, v): '_'.join([str(data.get(attr, None)) for attr in edge_attributes])
-        for u, v, data in graph.edges(data=True)
-    }
-
-    # Add labels back temporarily
-    nx.set_node_attributes(graph, node_labels, 'label')
-    nx.set_edge_attributes(graph, edge_labels, 'label')
-
-    # Compute WL hash
-    return nx.weisfeiler_lehman_graph_hash(graph, node_attr='label', edge_attr='label', iterations=iterations)
 
 
 
