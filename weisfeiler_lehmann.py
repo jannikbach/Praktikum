@@ -89,4 +89,6 @@ def _get_initial_neighbor_label(graph: nx.Graph, from_node, to_node, node_attr, 
 
 
 def _hash_dict(d: dict) -> int:
-    return xxh64(json.dumps(d, sort_keys=True).encode()).intdigest()
+    fst = lambda x: x[0]  # for the functional bros
+    s = str(sorted(d.items(), key=fst))
+    return xxh64(s.encode()).intdigest()
