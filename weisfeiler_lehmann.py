@@ -1,4 +1,3 @@
-import json
 import networkx as nx
 from xxhash import xxh64
 
