@@ -8,36 +8,25 @@ from tqdm import tqdm
 
 
 def split_by_key(cluster, key_func):
-    representative, graphs = cluster
-    graphs.sort(key=key_func)
-    return [(key, list(group)) for key, group in groupby(graphs, key=key_func)]
+    cluster = sorted(cluster, key=key_func)
+    return [list(group) for key, group in groupby(cluster, key=key_func)]
 
 
-def split_by_equality(cluster, is_equal, representative_func=None):
-    representative, graphs = cluster
-    if representative_func is None:
-        # use identity
-        representative_func = lambda x: x
-
-    clusters = []
-
-    for graph in graphs:
-        representative = representative_func(graph)
-
-        found_cluster = False
-        for cluster_representative, cluster_elements in clusters:
-            if is_equal(representative, cluster_representative):
-                cluster_elements.append(graph)
-                found_cluster = True
+def split_by_equality(cluster, is_equal):
+    buckets = []
+    for graph in cluster:
+        found_bucket = False
+        for bucket in buckets:
+            representative = bucket[0]
+            if is_equal(graph, representative):
+                bucket.append(graph)
+                found_bucket = True
                 break
-
-        if not found_cluster:
+        if not found_bucket:
             # spawn new cluster
-            # use representative of the first element as representative of the whole cluster
-            cluster = (representative, [graph])
-            clusters.append(cluster)
+            buckets.append([graph])
 
-    return clusters
+    return buckets
 
 
 def partition_clusters_by_invariant(clusters, invariant):
@@ -115,7 +104,7 @@ def load_reaction_centers(dataset='small', verbose=True):
 
 
 def run_pipeline(pipeline_title, reaction_centers, invariants, iso=True):
-    clusters = [(0, reaction_centers)]
+    clusters = [reaction_centers]
     print(f"===== '{pipeline_title}' =====")
 
     prev_num_clusters = len(clusters)
