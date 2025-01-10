@@ -4,14 +4,14 @@ from utils import run_pipeline, load_reaction_centers
 reaction_centers = load_reaction_centers('Data/ITS_graphs.pkl.gz')
 
 run_pipeline("Way too big", reaction_centers, [
-    inv.number_of_nodes,
-    inv.number_of_edges,
-    inv.degree_distribution,
-    inv.elemental_composition,
-    inv.bond_type_distribution,
-    inv.clustering_coefficients,
+    (None, inv.number_of_nodes),
+    (None, inv.number_of_edges),
+    (None, inv.degree_distribution),
+    (None, inv.elemental_composition),
+    (None, inv.bond_type_distribution),
+    (None, inv.clustering_coefficients),
 ])
 
 run_pipeline("Simple but efficient", reaction_centers, [
-    inv.elemental_composition,
+    (None, inv.elemental_composition),
 ])

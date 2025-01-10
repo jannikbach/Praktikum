@@ -10,17 +10,22 @@ if __name__ == "__main__":
     else:
         reaction_centers = load_reaction_centers(sys.argv[1])
 
-    run_pipeline("custom WL max_workers=1", reaction_centers, [
+    run_pipeline("custom WL sequential, it=3", reaction_centers, [
+        (wl_init, hash_graph),
+        (wl_step, hash_graph),
+        (wl_step, hash_graph),
+    ], iso=False)
+    run_pipeline("custom WL max_worker=1, it=3", reaction_centers, [
         (wl_init, hash_graph),
         (wl_step, hash_graph),
         (wl_step, hash_graph),
     ], max_workers=1, iso=False)
-    run_pipeline("custom WL", reaction_centers, [
+    run_pipeline("custom WL max_worker=4, it=3", reaction_centers, [
         (wl_init, hash_graph),
         (wl_step, hash_graph),
         (wl_step, hash_graph),
     ], max_workers=4, iso=False)
-    run_pipeline("NX wl", reaction_centers, [
+    run_pipeline("NX wl sequential, it=3", reaction_centers, [
         (None, wl_with_iterations(3))
-    ], max_workers=4, iso=False)
+    ], max_workers=0, iso=False)
 

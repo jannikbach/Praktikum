@@ -104,7 +104,7 @@ def load_reaction_centers(dataset='small', verbose=True):
     elif dataset == 'large':
         graphs_filename = 'Data/ITS_largerdataset.pkl.gz'
     else:
-        graphs_filename = 'Data/ITS_graphs_100_subset.pkl'
+        raise ValueError("If set, dataset must be 'small', 'medium', 'large'")
 
     return load_reactioncenters_from_path(graphs_filename, verbose)
 
@@ -118,58 +118,86 @@ def _unflatten(graphs, cluster_sizes):
     return clusters
 
 
-def run_pipeline(pipeline_title, reaction_centers, steps, max_workers=1, iso=True):
+def partition_clusters_by_invariant(clusters, invariant):
+    """
+    Partition clusters by invariant
+    """
+    partitioned_clusters = []
+    for cluster in clusters:
+        invariant_sublists = split_by_key(cluster, invariant)
+        partitioned_clusters.extend(invariant_sublists)
+    return partitioned_clusters
+
+
+def run_pipeline(pipeline_title, reaction_centers, steps, max_workers=0, iso=True):
     clusters = [reaction_centers]
     print(f"===== '{pipeline_title}' =====")
 
     prev_num_clusters = len(clusters)
     start_time = 0
     end_time = 0
+    current_transformation = None
 
     def print_stats():
+        if current_transformation is None:
+            print(invariant.__name__)
+        else:
+            print(f"{current_transformation.__name__} | {invariant.__name__}")
         print(f" - Time: {end_time - start_time:.2f} s")
         print(f" - Clusters: {len(clusters)} (+{len(clusters) - prev_num_clusters})")
 
     total_start_time = time.time()
-    for transformation, invariant in steps:
-        start_time = time.time()
 
-        cluster_sizes = [len(cluster) for cluster in clusters]
-
-        # flatten
-        all_graphs = list(more_itertools.flatten(clusters))
-
-        # transform parallel
-        with ProcessPoolExecutor(max_workers=max_workers) as executor:
+    if max_workers == 0:
+        for transformation, invariant in steps:
+            start_time = time.time()
+            current_transformation = transformation
             if transformation is not None:
-                all_graphs = list(executor.map(transformation, all_graphs))
-            labels = list(executor.map(invariant, all_graphs))
-        decorated_graphs = list(zip(labels, all_graphs))
+                for cluster in clusters:
+                    for graph in cluster:
+                        # in-place transformation
+                        transformation(graph)
+            clusters = partition_clusters_by_invariant(clusters, invariant)
+            end_time = time.time()
+            print_stats()
+            prev_num_clusters = len(clusters)
 
-        # unflatten
-        clusters_of_decorated_graphs = _unflatten(decorated_graphs, cluster_sizes)
+    else:
+        for transformation, invariant in steps:
+            start_time = time.time()
+            current_transformation = transformation
 
-        clusters = []
-        for cluster_of_decorated_graphs in clusters_of_decorated_graphs:
-            # Step 2: Sort the decorated list by key
-            cluster_of_decorated_graphs.sort(key=itemgetter(0))
+            cluster_sizes = [len(cluster) for cluster in clusters]
 
-            # Step 3: Group by the precomputed key
-            grouped = groupby(cluster_of_decorated_graphs, key=itemgetter(0))
+            # flatten
+            all_graphs = list(more_itertools.flatten(clusters))
 
-            for _, group in grouped:
-                cluster_of_undecorated_graphs = [item for _, item in group]
-                clusters.append(cluster_of_undecorated_graphs)
+            # transform parallel
+            with ProcessPoolExecutor(max_workers=max_workers) as executor:
+                if transformation is not None:
+                    all_graphs = list(executor.map(transformation, all_graphs))
+                labels = list(executor.map(invariant, all_graphs))
+            decorated_graphs = list(zip(labels, all_graphs))
 
-        end_time = time.time()
+            # unflatten
+            clusters_of_decorated_graphs = _unflatten(decorated_graphs, cluster_sizes)
 
-        if transformation is None:
-            print(invariant.__name__)
-        else:
-            print(f"{transformation.__name__} | {invariant.__name__}")
-        print_stats()
+            clusters = []
+            for cluster_of_decorated_graphs in clusters_of_decorated_graphs:
+                # Step 2: Sort the decorated list by key
+                cluster_of_decorated_graphs.sort(key=itemgetter(0))
 
-        prev_num_clusters = len(clusters)
+                # Step 3: Group by the precomputed key
+                grouped = groupby(cluster_of_decorated_graphs, key=itemgetter(0))
+
+                for _, group in grouped:
+                    cluster_of_undecorated_graphs = [item for _, item in group]
+                    clusters.append(cluster_of_undecorated_graphs)
+
+            end_time = time.time()
+            print_stats()
+
+            prev_num_clusters = len(clusters)
 
     if iso:
         start_time = time.time()
@@ -184,3 +212,4 @@ def run_pipeline(pipeline_title, reaction_centers, steps, max_workers=1, iso=Tru
     print(f"Total Time: {total_end_time - total_start_time:.2f} s")
 
     return clusters
+
