@@ -86,8 +86,7 @@ def get_rc(G: nx.Graph, l, ID=None) -> nx.Graph:
             rc = nx.compose(rc, ego)
     return rc
 
-
-def load_reactioncenters_from_path(graphs_filename,l=0, verbose=True):
+def load_reactions_from_path(graphs_filename, verbose=True):
     if verbose:
         print("Loading data...")
 
@@ -96,16 +95,27 @@ def load_reactioncenters_from_path(graphs_filename,l=0, verbose=True):
 
     if verbose:
         print("Data loaded.")
-        print("Computing reaction centers...")
 
-    reaction_centers = []
+    return reactions
+
+def compute_reactioncenters_plus_l_neighborhood(reactions, l, verbose=True):
+    reaction_centers_plus_l_neighborhoood = []
 
     # Initialize tqdm progress bar
     for reaction in tqdm(reactions, desc="Processing Reactions", unit="reaction"):
-        reaction_centers.append(get_rc(reaction['ITS'],l))
+        reaction_centers_plus_l_neighborhoood.append(get_rc(reaction['ITS'], l))
 
     if verbose:
         print("Reaction centers computed.")
+
+    return reaction_centers_plus_l_neighborhoood
+
+def load_reactioncenters_from_path(graphs_filename,l=0, verbose=True):
+    reactions = load_reactions_from_path(graphs_filename, verbose)
+    if verbose:
+        print("Computing reaction centers...")
+
+    reaction_centers = compute_rc_plus_l_neighborhood(reactions, l, verbose)
 
     return reaction_centers
 
@@ -122,6 +132,19 @@ def load_reaction_centers(dataset='small', l=0, verbose=True):
         graphs_filename = 'Data/ITS_graphs_100_subset.pkl'
 
     return load_reactioncenters_from_path(graphs_filename,l, verbose)
+
+def load_reactions(dataset='small', verbose=True):
+    if dataset == 'small':
+        graphs_filename = 'Data/ITS_graphs_100_subset.pkl'
+        verbose = False
+    elif dataset == 'medium':
+        graphs_filename = 'Data/ITS_graphs.pkl.gz'
+    elif dataset == 'large':
+        graphs_filename = 'Data/ITS_largerdataset.pkl.gz'
+    else:
+        graphs_filename = 'Data/ITS_graphs_100_subset.pkl'
+
+    return load_reactions_from_path(graphs_filename, verbose)
 
 
 def run_pipeline(pipeline_title, reaction_centers, steps, iso=True):

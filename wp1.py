@@ -1,5 +1,7 @@
 import pickle
 
+import networkx as nx
+
 with open('Data/ITS_graphs_100_subset.pkl', 'rb') as f:
     data = pickle.load(f)
 
@@ -9,6 +11,8 @@ from utils import get_rc
 reaction_center = get_rc(data[1]['ITS'], ID=data[1]['R-id'])
 print(reaction_center.graph.get("ID"))
 
+
+nx.compose()
 
 from synutility.SynVis.graph_visualizer import GraphVisualizer
 import matplotlib.pyplot as plt
