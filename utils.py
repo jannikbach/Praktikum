@@ -71,8 +71,7 @@ def is_isomorphic(rc1, rc2):
     return nx.is_isomorphic(rc1, rc2, node_match=node_match, edge_match=edge_match)
 
 
-def get_rc(G: nx.Graph, ID=None) -> nx.Graph:
-
+def get_rc(G: nx.Graph, l, ID=None) -> nx.Graph:
     # Extract edges with "standard_order" not equal to 0
     edges = [(e[0], e[1]) for e in G.edges(data=True) if e[2]["standard_order"] != 0]
     rc = nx.edge_subgraph(G, edges)
@@ -80,10 +79,15 @@ def get_rc(G: nx.Graph, ID=None) -> nx.Graph:
     # Assign the parent identifier (R-id)
     rc.graph["ID"] = ID
 
+    #ego_graph get adjacent nodes iteratively over reaction center nodes
+    if l > 0:
+        for node in rc.nodes:
+            ego = nx.ego_graph(G, node,center=True, radius=l)
+            rc = nx.compose(rc, ego)
     return rc
 
 
-def load_reactioncenters_from_path(graphs_filename, verbose=True):
+def load_reactioncenters_from_path(graphs_filename,l=0, verbose=True):
     if verbose:
         print("Loading data...")
 
@@ -98,7 +102,7 @@ def load_reactioncenters_from_path(graphs_filename, verbose=True):
 
     # Initialize tqdm progress bar
     for reaction in tqdm(reactions, desc="Processing Reactions", unit="reaction"):
-        reaction_centers.append(get_rc(reaction['ITS']))
+        reaction_centers.append(get_rc(reaction['ITS'],l))
 
     if verbose:
         print("Reaction centers computed.")
@@ -106,7 +110,7 @@ def load_reactioncenters_from_path(graphs_filename, verbose=True):
     return reaction_centers
 
 
-def load_reaction_centers(dataset='small', verbose=True):
+def load_reaction_centers(dataset='small', l=0, verbose=True):
     if dataset == 'small':
         graphs_filename = 'Data/ITS_graphs_100_subset.pkl'
         verbose = False
@@ -117,7 +121,7 @@ def load_reaction_centers(dataset='small', verbose=True):
     else:
         graphs_filename = 'Data/ITS_graphs_100_subset.pkl'
 
-    return load_reactioncenters_from_path(graphs_filename, verbose)
+    return load_reactioncenters_from_path(graphs_filename,l, verbose)
 
 
 def run_pipeline(pipeline_title, reaction_centers, steps, iso=True):
