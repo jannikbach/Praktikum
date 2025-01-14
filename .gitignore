@@ -2,3 +2,5 @@
 .idea
 Data/ITS_graphs.pkl.gz
 ITS_largerdataset.pkl.gz
+__pycache__/
+
