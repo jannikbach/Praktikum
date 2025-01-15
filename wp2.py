@@ -4,10 +4,10 @@ Implements a simple clustering algorithm.
 import pickle
 import time
 
-from utils import is_isomorphic, split_by_equality, get_rc, load_reaction_centers
+from utils import is_isomorphic, split_by_equality, get_rc, load_rcs
 
 
-reaction_centers = load_reaction_centers('medium')
+reaction_centers = load_rcs('medium')
 
 cluster = (0, reaction_centers)
 

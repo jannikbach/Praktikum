@@ -1,7 +1,7 @@
 import invariants as inv
-from utils import run_pipeline, load_reaction_centers
+from utils import run_pipeline, load_rcs
 
-reaction_centers = load_reaction_centers('Data/ITS_graphs.pkl.gz')
+reaction_centers = load_rcs('Data/ITS_graphs.pkl.gz')
 
 run_pipeline("Way too big", reaction_centers, [
     inv.number_of_nodes,

@@ -79,12 +79,13 @@ def get_rc(G: nx.Graph, l, ID=None) -> nx.Graph:
     # Assign the parent identifier (R-id)
     rc.graph["ID"] = ID
 
-    #ego_graph get adjacent nodes iteratively over reaction center nodes
+    # ego_graph get adjacent nodes iteratively over reaction center nodes
     if l > 0:
         for node in rc.nodes:
-            ego = nx.ego_graph(G, node,center=True, radius=l)
+            ego = nx.ego_graph(G, node, center=True, radius=l)
             rc = nx.compose(rc, ego)
     return rc
+
 
 def load_reactions_from_path(graphs_filename, verbose=True):
     if verbose:
@@ -98,52 +99,31 @@ def load_reactions_from_path(graphs_filename, verbose=True):
 
     return reactions
 
-def compute_reactioncenters_plus_l_neighborhood(reactions, l, verbose=True):
-    reaction_centers_plus_l_neighborhoood = []
 
-    # Initialize tqdm progress bar
-    for reaction in tqdm(reactions, desc="Processing Reactions", unit="reaction"):
-        reaction_centers_plus_l_neighborhoood.append(get_rc(reaction['ITS'], l))
-
-    if verbose:
-        print("Reaction centers computed.")
-
-    return reaction_centers_plus_l_neighborhoood
-
-def load_reactioncenters_from_path(graphs_filename,l=0, verbose=True):
-    reactions = load_reactions_from_path(graphs_filename, verbose)
-    if verbose:
-        print("Computing reaction centers...")
-
-    reaction_centers = compute_rc_plus_l_neighborhood(reactions, l, verbose)
-
-    return reaction_centers
+def compute_rcs(reactions, l=0):
+    return [get_rc(reaction['ITS'], l)
+            for reaction in tqdm(reactions, desc="Processing Reactions", unit="reaction")]
 
 
-def load_reaction_centers(dataset='small', l=0, verbose=True):
+def path_from_dataset(dataset):
     if dataset == 'small':
-        graphs_filename = 'Data/ITS_graphs_100_subset.pkl'
-        verbose = False
+        return 'Data/ITS_graphs_100_subset.pkl'
     elif dataset == 'medium':
-        graphs_filename = 'Data/ITS_graphs.pkl.gz'
+        return 'Data/ITS_graphs.pkl.gz'
     elif dataset == 'large':
-        graphs_filename = 'Data/ITS_largerdataset.pkl.gz'
+        return 'Data/ITS_largerdataset.pkl.gz'
     else:
-        graphs_filename = 'Data/ITS_graphs_100_subset.pkl'
+        raise ValueError("dataset must be one of 'small', 'medium', or 'large'")
 
-    return load_reactioncenters_from_path(graphs_filename,l, verbose)
+
+def load_rcs(dataset='small', l=0, verbose=True):
+    graphs_filename = path_from_dataset(dataset)
+    reactions = load_reactions_from_path(graphs_filename, verbose)
+    return compute_rcs(reactions, l)
+
 
 def load_reactions(dataset='small', verbose=True):
-    if dataset == 'small':
-        graphs_filename = 'Data/ITS_graphs_100_subset.pkl'
-        verbose = False
-    elif dataset == 'medium':
-        graphs_filename = 'Data/ITS_graphs.pkl.gz'
-    elif dataset == 'large':
-        graphs_filename = 'Data/ITS_largerdataset.pkl.gz'
-    else:
-        graphs_filename = 'Data/ITS_graphs_100_subset.pkl'
-
+    graphs_filename = path_from_dataset(dataset)
     return load_reactions_from_path(graphs_filename, verbose)
 
 
