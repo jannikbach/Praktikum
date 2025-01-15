@@ -128,6 +128,9 @@ def load_reactions(dataset='small', verbose=True):
 
 
 def run_pipeline(pipeline_title, reaction_centers, steps, iso=True):
+    """
+    steps is a list of invariants or tuples (transformation, invariant).
+    """
     clusters = [reaction_centers]
     print(f"===== '{pipeline_title}' =====")
 
@@ -140,7 +143,16 @@ def run_pipeline(pipeline_title, reaction_centers, steps, iso=True):
         print(f" - Clusters: {len(clusters)} (+{len(clusters) - prev_num_clusters})")
 
     total_start_time = time.time()
-    for transformation, invariant in steps:
+    for step in steps:
+
+        # split if step is a tuple
+        if isinstance(step, tuple):
+            transformation, invariant = step
+        else:
+            # only invariant given
+            transformation = None
+            invariant = step
+
         start_time = time.time()
         if transformation is not None:
             for cluster in clusters:
