@@ -3,3 +3,4 @@ more-itertools
 xxhash
 tqdm
 networkx
+matplotlib
