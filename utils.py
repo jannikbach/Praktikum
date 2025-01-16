@@ -1,5 +1,6 @@
 import time
 import pickle
+from collections import defaultdict
 from itertools import groupby
 from operator import itemgetter
 
@@ -9,34 +10,30 @@ from tqdm import tqdm
 
 
 def split_by_key(cluster, key_func):
-    # Step 1: Decorate each element with its key
-    decorated = [(key_func(item), item) for item in cluster]
+    buckets = defaultdict(list)
 
-    # Step 2: Sort the decorated list by key
-    decorated.sort(key=itemgetter(0))
+    for graph in cluster:
+        key = key_func(graph)
+        buckets[key].append(graph)
 
-    # Step 3: Group by the precomputed key
-    grouped = groupby(decorated, key=itemgetter(0))
-
-    # Step 4: Extract the original items from each group
-    return [[item for _, item in group] for _, group in grouped]
+    return list(buckets.values())
 
 
 def split_by_equality(cluster, is_equal):
-    buckets = []
-    for graph in cluster:
-        found_bucket = False
-        for bucket in buckets:
-            representative = bucket[0]
-            if is_equal(graph, representative):
-                bucket.append(graph)
-                found_bucket = True
-                break
-        if not found_bucket:
-            # spawn new cluster
-            buckets.append([graph])
+    buckets = defaultdict(list)
 
-    return buckets
+    for graph in cluster:
+        found_representative = False
+        for representative in buckets:
+            if is_equal(graph, representative):
+                buckets[representative].append(graph)
+                found_representative = True
+                break
+
+        if not found_representative:
+            buckets[graph].append(graph)
+
+    return list(buckets.values())
 
 
 def partition_clusters_by_invariant(clusters, invariant):
